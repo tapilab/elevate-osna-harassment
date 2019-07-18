@@ -34,7 +34,7 @@ setup(
     entry_points={
         'console_scripts': [
             'osna=osna.cli:main',
-            'web=osna.cli:web',
+            'web=osna.cli:web',         #function named web
             'stats=osna.cli:stats',
         ],
     },
