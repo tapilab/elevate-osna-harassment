@@ -33,9 +33,9 @@ def web(twitter_credentials, port):
 @main.command('stats')
 @click.argument('directory', type=click.Path(exists=True))
 def stats(directory):
-	"""
-	Read all files in this directory and its subdirectories and print statistics.
-	"""
+    """
+    Read all files in this directory and its subdirectories and print statistics.
+    """
     df = pd.read_csv(directory)
     # get Unique username number
     User = []
@@ -80,10 +80,17 @@ def stats(directory):
     counter = dict(Counter(SumList))
     count = 0
     for word in counter:
-    		if counter[word] > 1:
-    			count += counter[word]
+            if counter[word] > 1:
+                count += counter[word]
     print(count)
-    print('reading from %s' % directory)
 
+    hostile = df[df['hostile'] == 1]
+    arr = hostile['text'].apply(func = lambda x: simple_tokenizer(x)).values
+    hostile_tokens = []
+    for tokens in arr:
+        hostile_tokens.extend(tokens)
+    Counter(hostile_tokens).most_common(50)
+    print('reading from %s' % directory)
+    
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover
