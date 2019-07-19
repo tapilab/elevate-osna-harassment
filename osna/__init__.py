@@ -2,8 +2,8 @@
 
 """Top-level package for elevate-osna."""
 
-__author__ = """A Student"""
-__email__ = 'student@example.com'
+__author__ = """Xiaoyue Qi"""
+__email__ = 'pixy.qi@gmail.com'
 __version__ = '0.1.0'
 
 # -*- coding: utf-8 -*-
