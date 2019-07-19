@@ -44,8 +44,9 @@ def stats(directory):
     
     import pandas as pd
     # use the directory variable (passed into this function), 
-    # rather than hard-coding this path.
-    df=pd.read_csv('C:\\Users\\郑\\training_data\\data.csv\\data.csv')
+    # rather than hard-coding this path. -awc
+    #df=pd.read_csv('C:\\Users\\郑\\training_data\\data.csv\\data.csv')
+    df=pd.read_csv(directory)
     
     unique_user=set(df['sender'])
     n1=len(unique_user)
@@ -72,10 +73,16 @@ def stats(directory):
         s = re.sub(r'@(\S+)', r'MENTION_\1', s)
         s = re.sub(r'http\S+', 'THIS_IS_A_URL', s)
         return re.sub('\W+', ' ', s.lower()).split()
-    a = []
-    for tweet in df['text']:
-        a=a+tweet_tokenizer(tweet)
-        
+    # a = []
+    # for tweet in df['text']:
+    #     a=a+tweet_tokenizer(tweet)
+
+    a = [t for tweet in df['text'] for t in tweet_tokenizer(tweet)]
+    # a = []
+    # for tweet in df['text']:
+    #     for t in tweet:
+    #         a.append(t)
+
     n7=len(set(a))
     n8=len(a)
     print("The number of unique words is %d"%n7)
