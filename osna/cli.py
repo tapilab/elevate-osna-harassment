@@ -31,7 +31,7 @@ def stats(directory):
 	# recursively search subdirectories.
 	
 	import pandas as pd
-	df=pd.read_csv('C:\\Users\\郑\\training_data\\data.csv\\data.csv')
+	df=pd.read_csv(directory)
 	
 	unique_user=set(df['sender'])
 	n1=len(unique_user)
