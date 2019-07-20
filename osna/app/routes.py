@@ -38,7 +38,7 @@ def getTwt(user_name):
 	"""
     Establing connection
 	"""
-	path="C:\\Users\lenovo\desktop\credentials.json"
+	path="C:\\Users\lenovo\elevate-osna-harassment\credentials.json"
 	file=json.loads(open(path).read())
 	twt=TwitterAPI(file["consumer_key"],file["consumer_secret"],file["access_token"],file["token_secret"])
 	
