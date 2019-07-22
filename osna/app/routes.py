@@ -8,12 +8,9 @@ import sys
 import json
 from TwitterAPI import TwitterAPI
 
-
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-
 	form = MyForm()
 	result = None
 	if form.validate_on_submit():
