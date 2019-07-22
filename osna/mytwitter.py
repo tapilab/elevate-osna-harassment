@@ -9,9 +9,47 @@ import time
 import traceback
 from TwitterAPI import TwitterAPI
 
+
 RATE_LIMIT_CODES = set([88, 130, 420, 429])
 
 class Twitter:
+	def get_twitter(credential_file):
+		""" Read the credential_file and construct an instance of TwitterAPI.
+		Args:
+		credential_file ... A JSON file with twitter tokens
+		Returns:
+		An instance of TwitterAPI.
+		"""
+		tokens = json.loads(open('/Users/11977/.osna/credentials.json').read())
+		twitter = TwitterAPI(
+			tokens['consumer_key'],
+			tokens['consumer_secret'],
+			tokens['access_token'],
+			tokens['token_secret']        
+			)
+		return twitter
+
+	
+	def robust_request(twitter, resource, params, max_tries=5):
+		""" If a Twitter request fails, sleep for 15 minutes.
+		Do this at most max_tries times before quitting.
+		Args:
+		twitter .... A TwitterAPI object.
+		resource ... A resource string to request.
+		params ..... A parameter dictionary for the request.
+		max_tries .. The maximum number of tries to attempt.
+		Returns:
+		A TwitterResponse object, or None if failed.
+		"""
+		for i in range(max_tries):
+			request = twitter.request(resource, params)
+			if request.status_code == 200:
+				return request
+			else:
+				print('Got error: %s \nsleeping for 15 minutes.' 
+					% request.text)
+				time.sleep(61 * 15)
+
 	def __init__(self, credential_file):
 		"""
 		Params:
@@ -22,7 +60,7 @@ class Twitter:
 		self.credential_cycler = cycle(self.credentials)
 		self.reinit_api()
 
-	def reinit_api(self):
+	def reinit_api(self,credential_file):
 		creds = next(self.credential_cycler)
 		sys.stderr.write('switching creds to %s\n' % creds['consumer_key'])
 		self.twapi = TwitterAPI(creds['consumer_key'],
@@ -137,5 +175,6 @@ class Twitter:
 				sys.stderr.write(traceback.format_exc() + '\n')
 				return tweets
 		return tweets
+
 
 
