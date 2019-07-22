@@ -8,7 +8,7 @@ import sys
 import json
 from TwitterAPI import TwitterAPI
 from osna.mytwitter import Twitter
-
+import osna
 
 #twapi = Twitter(credentials_path)
 
@@ -38,7 +38,8 @@ def getTwt(user_name):
 	"""
     Establing connection
 	"""
-	path="C:\\Users\lenovo\elevate-osna-harassment\credentials.json"
+	#path="C:\\Users\lenovo\elevate-osna-harassment\credentials.json"
+	path=osna.credentials_path
 	file=json.loads(open(path).read())
 	twt=TwitterAPI(file["consumer_key"],file["consumer_secret"],file["access_token"],file["token_secret"])
 	
@@ -59,9 +60,9 @@ def getTwt(user_name):
 		
 		
 		if len(ret)-lst_len>0:
-			print(len(ret)-lst_len)
+			#print(len(ret)-lst_len)
 			param['max_id']=min(t['id'] for t in req)-1
-			if len(ret)-lst_len<48:
+			if len(ret)-lst_len<49:
 				if len(ret)<200:
 					return 1,ret
 				else:
