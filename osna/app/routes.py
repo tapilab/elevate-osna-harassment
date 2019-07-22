@@ -4,11 +4,11 @@ from .forms import MyForm
 #from ..mytwitter import Twitter
 #from ..u import get_twitter_data, N_TWEETS
 from .. import credentials_path
-from TwitterAPI import TwitterAPI 
-import json
 import sys
-from osna.mytwitter import Twitter 
-
+import json
+from TwitterAPI import TwitterAPI
+from osna.mytwitter import Twitter
+import osna
 
 #twapi = Twitter(credentials_path)
 
@@ -18,28 +18,58 @@ def index():
 	form = MyForm()
 	result = None
 	if form.validate_on_submit():
-		input_field = form.input_field.data
-		Output = 'Invalid'
-		if(input_field=='get_tweet'):
-    			Output=text
-		flash(input_field)
-		return render_template('myform.html', title='', form=form, tweets=Output)
-	#return redirect('/index')
+		chk,tweets=getTwt(form.input_field.data)
+		if chk==0:
+			input_field=tweets
+			flash(input_field)
+			return render_template('myform.html', title='', form=form)
+		else:
+			info=str(len(tweets))+" tweet(s) detected for "+form.input_field.data+" in total :"
+			flash(info)
+			for each in tweets:
+				input_field=each
+				flash(input_field)
 	return render_template('myform.html', title='', form=form)
 
-twitter = Twitter.get_twitter('credentials.json')
-print('Established Twitter connection.')
-time=Twitter.robust_request(twitter,'statuses/user_timeline',
-                          {'screen_name': '@realDonaldTrump',
-                           'count':200} )
-time2=Twitter.robust_request(twitter,'statuses/user_timeline',
-							{'screen_name': '@pixy_qi',
-							'count':200} )							
+def getTwt(user_name):
+	"""
+    Establing connection
+	"""
+	#path="C:\\Users\lenovo\elevate-osna-harassment\credentials.json"
+	path=osna.credentials_path
+	file=json.loads(open(path).read())
+	twt=TwitterAPI(file["consumer_key"],file["consumer_secret"],file["access_token"],file["token_secret"])
 
+	"""
+	Acquiring user's info 
+	"""
+	max_id=None
+	param={'screen_name':user_name,'max_id': max_id, 'tweet_mode': 'extended', 'trim_user': 0,'count':50}
+	ret=[]
+	lst_len=0
+	while len(ret)<200:
+		req=twt.request('statuses/user_timeline',param)
+		if req.status_code==200:
+			for each in req:
+				ret.append(each['full_text'])
+		else:
+			return 0,"NO SUCH USER!"	
+		
 
+		if len(ret)-lst_len>0:
+			#print(len(ret)-lst_len)
+			param['max_id']=min(t['id'] for t in req)-1
+			if len(ret)-lst_len<49:
+				if len(ret)<200:
+					return 1,ret
+				else:
+					return 1,ret[0:200]
+			lst_len=len(ret)
 
-text=('\t'.join(t['text'] for t in time))
-text2=('\t'.join(t['text'] for t in time2))
-text+=text2
-
-print('got %d tweets for user ' % (len(text)))
+		else:
+			break
+	#return 1,ret
+	if len(ret)<200:
+		return 1,ret
+	else:
+		return 1,ret[0:200]
