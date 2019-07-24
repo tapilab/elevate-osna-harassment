@@ -44,8 +44,13 @@ def web(twitter_credentials, port):
 def stats(directory):
     """
 <<<<<<< HEAD
+<<<<<<< HEAD
     Read all files in this directory and its subdirectories and print statistics.
     """
+=======
+	Read all files in this directory and its subdirectories and print statistics.
+	"""
+>>>>>>> 59ba81a0736587ba5743b6b67ae537a120b3e42f
     df = pd.read_csv(directory)
     # get Unique username number
     User = []
@@ -60,6 +65,7 @@ def stats(directory):
                 UniUser -= 1
                 break
 
+<<<<<<< HEAD
     # use glob to iterate all files matching desired pattern (e.g., .json files).
     # recursively search subdirectories.
 
@@ -221,14 +227,41 @@ def stats(directory):
     Read all files in this directory and its subdirectories and print statistics.
     """
     print('reading from %s' % directory)
+=======
+>>>>>>> 59ba81a0736587ba5743b6b67ae537a120b3e42f
     # use glob to iterate all files matching desired pattern (e.g., .json files).
     # recursively search subdirectories.
-    
-    import pandas as pd
-    # use the directory variable (passed into this function), 
-    # rather than hard-coding this path. -awc
-    #df=pd.read_csv('C:\\Users\\郑\\training_data\\data.csv\\data.csv')
-    df=pd.read_csv(directory)
+
+    # ,text,target,sender,link,hostile,If hostile is it directed ?,group,id
+    # the structure of json
+
+    class solution:
+        def FindNumsAppearNotOnce(self, array):
+            # find element only appear once in this specific text (not in all)
+            array.sort()
+            li = []
+            y = list(array)
+            for i in range(len(y)):
+                if array.count(y[i]) > 1:
+                    li.append(y[i])
+            print(li)
+            return li
+
+    def simple_tokenizer(s):
+        return s.split()
+
+
+	# use glob to iterate all files matching desired pattern (e.g., .json files).
+	# recursively search subdirectories.
+	
+    unique_user=set(df['sender'])
+    n1=len(unique_user)
+    print("The number of unique users is %d"%n1)
+    unique_message=set(df['text'])
+    n2=len(unique_message)
+    print("The number of unique messages is %d"%n2)
+	
+
     
     unique_user=set(df['sender'])
     n1=len(unique_user)
@@ -238,6 +271,7 @@ def stats(directory):
     n2=len(unique_message)
     print("The number of unique messages is %d"%n2)
     
+
     df1=df[df['hostile']== 0]
     n3=len(set(df1['sender']))
     n4=len(set(df1['text']))
@@ -248,13 +282,31 @@ def stats(directory):
     n6=len(set(df2['text']))
     print("The number of unique users hostile is %d"%n5)
     print("The number of unique messages hostile is %d"%n6)
-    
+
+	
     import re
     def tweet_tokenizer(s):
-        s = re.sub(r'#(\S+)', r'HASHTAG_\1', s)
-        s = re.sub(r'@(\S+)', r'MENTION_\1', s)
-        s = re.sub(r'http\S+', 'THIS_IS_A_URL', s)
-        return re.sub('\W+', ' ', s.lower()).split()
+	    s = re.sub(r'#(\S+)', r'HASHTAG_\1', s)
+	    s = re.sub(r'@(\S+)', r'MENTION_\1', s)
+	    s = re.sub(r'http\S+', 'THIS_IS_A_URL', s)
+	    return re.sub('\W+', ' ', s.lower()).split()
+    a = []
+    for tweet in df['text']:
+	    a=a+tweet_tokenizer(tweet)
+
+
+    SumList = []  # the word list which only appear once in all text
+    accountAll = 0
+    for message in df['text']:
+        message = simple_tokenizer(message)
+        accountAll += len(message)
+        SumList.extend(message)
+    counter = dict(Counter(SumList))
+    count = 0
+    for word in counter:
+    		if counter[word] >= 1:
+    			count += counter[word]
+    print(count)
     # a = []
     # for tweet in df['text']:
     #     a=a+tweet_tokenizer(tweet)
@@ -265,16 +317,30 @@ def stats(directory):
     #     for t in tweet:
     #         a.append(t)
 
+
     n7=len(set(a))
     n8=len(a)
     print("The number of unique words is %d"%n7)
     print("The number of tokens is %d"%n8)
-    
+
     from collections import Counter
     def words(dicts):
-        counts = Counter() # handy object: dict from object -> int
-        counts.update(dicts)
-        return counts
+	    counts = Counter() # handy object: dict from object -> int
+	    counts.update(dicts)
+	    return counts
+    counts = words(a)
+    print("The 50 most common words are %s"%counts.most_common(50))
+	
+    b = []
+    for tweet in df1['text']:
+	    b=b+tweet_tokenizer(tweet)
+    c = []
+    for tweet in df2['text']:
+	    c=c+tweet_tokenizer(tweet)
+
+    
+    from collections import Counter
+
     counts = words(a)
     print("The 50 most common words are %s"%counts.most_common(50))
     
@@ -284,6 +350,7 @@ def stats(directory):
     c = []
     for tweet in df2['text']:
         c=c+tweet_tokenizer(tweet)
+
     print("The 50 most common words not hostile are %s"%words(b).most_common(50))
     print("The 50 most common words not hostile are %s"%words(c).most_common(50))
 
