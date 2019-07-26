@@ -1,12 +1,17 @@
 from flask import render_template, flash, redirect, session
 from . import app
 from .forms import MyForm
-from ..mytwitter import Twitter
+#from ..mytwitter import Twitter
 #from ..u import get_twitter_data, N_TWEETS
 from .. import credentials_path
 import sys
+<<<<<<< HEAD
 import json
 from TwitterAPI import TwitterAPI
+=======
+
+#twapi = Twitter(credentials_path)
+>>>>>>> parent of 3877234... W2L
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -17,13 +22,10 @@ def index():
 <<<<<<< HEAD
 		input_field = form.input_field.data
 		flash(input_field)
-		t = Twitter(credentials_path)
-		tweetsj = t._get_tweets('screen_name',input_field,limit=200)
-		tweets = [words['full_text'] for words in tweetsj]
-		#Tweets = a list of dict
-		return render_template('myform.html', title='', form=form, tweets=tweets)
+		return render_template('myform.html', title='', form=form)
 		#return redirect('/index')
 	return render_template('myform.html', title='', form=form)
+<<<<<<< HEAD
 =======
 		chk,tweets=getTwt(form.input_field.data)
 		if chk==0:
@@ -81,3 +83,5 @@ def getTwt(user_name):
 	else:
 		return 1,ret[0:200]
 >>>>>>> 59ba81a0736587ba5743b6b67ae537a120b3e42f
+=======
+>>>>>>> parent of 3877234... W2L
