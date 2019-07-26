@@ -3,10 +3,17 @@ from . import app
 from .forms import MyForm
 from ..mytwitter import Twitter
 #from ..u import get_twitter_data, N_TWEETS
-from .. import credentials_path
+from .. import credentials_path, clf_path
+
+import pickle
 import sys
 import json
 from TwitterAPI import TwitterAPI
+
+#twapi = Twitter(credentials_path)
+clf, vec = pickle.load(open(clf_path, 'rb'))
+print('read clf %s' % str(clf))
+print('read vec %s' % str(vec))
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -14,7 +21,6 @@ def index():
 	form = MyForm()
 	result = None
 	if form.validate_on_submit():
-<<<<<<< HEAD
 		input_field = form.input_field.data
 		flash(input_field)
 		t = Twitter(credentials_path)
@@ -24,19 +30,20 @@ def index():
 		return render_template('myform.html', title='', form=form, tweets=tweets)
 		#return redirect('/index')
 	return render_template('myform.html', title='', form=form)
-=======
-		chk,tweets=getTwt(form.input_field.data)
-		if chk==0:
-			input_field=tweets
-			flash(input_field)
-			return render_template('myform.html', title='', form=form)
-		else:
-			info=str(len(tweets))+" tweet(s) detected for "+form.input_field.data+" in total :"
-			flash(info)
-			for each in tweets:
-				input_field=each
-				flash(input_field)
-	return render_template('myform.html', title='', form=form)
+
+	
+	# 	chk,tweets=getTwt(form.input_field.data)
+	# 	if chk==0:
+	# 		input_field=tweets
+	# 		flash(input_field)
+	# 		return render_template('myform.html', title='', form=form)
+	# 	else:
+	# 		info=str(len(tweets))+" tweet(s) detected for "+form.input_field.data+" in total :"
+	# 		flash(info)
+	# 		for each in tweets:
+	# 			input_field=each
+	# 			flash(input_field)
+	# return render_template('myform.html', title='', form=form)
 
 def getTwt(user_name):
 	"""
@@ -80,4 +87,3 @@ def getTwt(user_name):
 		return 1,ret
 	else:
 		return 1,ret[0:200]
->>>>>>> 59ba81a0736587ba5743b6b67ae537a120b3e42f

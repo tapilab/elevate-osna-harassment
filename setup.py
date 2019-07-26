@@ -36,6 +36,7 @@ setup(
             'osna=osna.cli:main',
             'web=osna.cli:web',         #function named web
             'stats=osna.cli:stats',
+            'train=osna.cli:train',
         ],
     },
     install_requires=requirements,
