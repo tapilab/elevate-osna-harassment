@@ -207,20 +207,36 @@ def stats(directory):
 def train(directory):
     """
     Train a classifier and save it.
-    """
+	"""	
     print('reading from %s' % directory)
-    # (1) Read the data...
-    #
+    
+	# (1) Read the data...
+    file=pd.read_csv(directory)
     # (2) Create classifier and vectorizer.
     clf = LogisticRegression() # set best parameters 
     vec = CountVectorizer()    # set best parameters
-    
+    X=vec.fit_transform(file.text)
+    y=np.array(file.hostile)
+	
     # (3) do cross-validation and print out validation metrics
-    # (classification_report)
+    accur=[]
+    print('Cross Validation Results:')
+    for train,test in KFold(n_splits=5, shuffle=True, random_state=42).split(X):
+        clf.fit(X[train],y[train])
+        pred=clf.predict(X[test])
+        accur.append(accuracy_score(y[test], pred))
+        print('mean=%f std=%f' % (np.mean(accur), np.std(accur)))
 
     # (4) Finally, train on ALL data one final time and
-    # train...
-    # save the classifier
+    print('Overall Result:')
+    clf.fit(X,y)
+    y_pred=clf.predict(X)
+    from sklearn.metrics import confusion_matrix
+    mat=confusion_matrix(y,y_pred)
+    print('Confusion Matrix:')
+    print(mat)
+    print("Precision: %f" % (mat[1,1]/(mat[1,1]+mat[0,1])))
+    print("Recall: %f" % (mat[1,1]/(mat[1,1]+mat[1,0])))
     pickle.dump((clf, vec), open(clf_path, 'wb'))
 
 
