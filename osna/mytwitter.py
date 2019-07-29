@@ -58,7 +58,7 @@ class Twitter:
 		"""
 		self.credentials = [json.loads(l) for l in open(credential_file)]
 		self.credential_cycler = cycle(self.credentials)
-		self.reinit_api()
+		self.reinit_api(credential_file)
 
 	def reinit_api(self,credential_file):
 		creds = next(self.credential_cycler)
