@@ -8,9 +8,13 @@
       <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
     </head>
     <body>
+<<<<<<< HEAD
 
         <div>osna project team members: Xiaoyue Qi, Hanlei Xie, Ruiqing Fan</div>
 
+=======
+        <div>osna project: Pixy Qi, Ruiqing Fan, Hanlei Xie-harassment</div>
+>>>>>>> a2d1de9c06a3916ecbf33f24a3d4f824d592c8cb
         <hr>
         {% if form.errors %}
         {{ form.errors }}
@@ -21,11 +25,12 @@
         <!-- {% with messages = get_flashed_messages() %} -->
         <!-- {% if messages %} -->
         <ul>
-          
             {% for tweet in tweets %}
             <li>{{ tweet }}</li>
             {% endfor %}
-
+            <!-- {% for message in messages %} -->
+            <!-- <li>{{ value }}</li> -->
+            <!-- {% endfor %} -->
         </ul>
         <!-- {% endif %} -->
         <!-- {% endwith %} -->

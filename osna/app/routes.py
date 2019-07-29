@@ -11,7 +11,9 @@ import json
 from TwitterAPI import TwitterAPI
 
 #twapi = Twitter(credentials_path)
+
 vec, clf  = pickle.load(open(clf_path, 'rb'))
+
 print('read clf %s' % str(clf))
 print('read vec %s' % str(vec))
 
@@ -26,19 +28,23 @@ def index():
 		t = Twitter(credentials_path)
 		tweetsj = t._get_tweets('screen_name',input_field,limit=200)
 		tweets = [words['full_text'] for words in tweetsj]
+
+		
 		X = vec.transform(text for text in tweets)
-		y = clf.predict(X)
-		#Tweets = a list of dict
+		y=clf.predict(X)
+		proba=clf.predict_proba(X)
+		
 		ans=[]
 		for i in range(0,len(tweets)):
 			flag='[hostile] '
 			if y[i]==0:
 				flag='[non-hostile] '
-			ans.append(flag+tweets[i])
-        #Tweets = a list of dict
+			p='[probability='+str(proba[i,y[i]])+'] '
+			ans.append(flag+p+tweets[i])
+		
+		#Tweets = a list of dict
 		return render_template('myform.html', title='', form=form, tweets=ans)
-        #return redirect('/index')
-		#return render_template('myform.html', title='', form=form, tweets=tweets)
+
 		#return redirect('/index')
 	return render_template('myform.html', title='', form=form)
 
