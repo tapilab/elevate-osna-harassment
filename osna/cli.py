@@ -9,11 +9,7 @@ import sys
 import numpy as np# -*- coding: utf-8 -*-
 
 """Console script for elevate_osna."""
-import click
-import os  # operation system
-import glob
-import sys
-import numpy as np
+
 import pandas as pd
 import scipy
 import json
@@ -29,9 +25,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, classification_report
-
+from numpy import hstack
 from . import credentials_path, clf_path
-
+from scipy import sparse
+from sklearn.metrics import confusion_matrix
 
 # from . import credentials_path, config
 
@@ -210,14 +207,31 @@ def train(directory):
     print('reading from %s' % directory)
     
 	# (1) Read the data...
-    file=pd.read_csv(directory)
-    # (2) Create classifier and vectorizer.
+    df = pd.read_csv(directory)[['text', 'hostile']]
     clf = LogisticRegression() # set best parameters 
     vec = CountVectorizer()    # set best parameters
-    X=vec.fit_transform(file.text)
-    y=np.array(file.hostile)
-	
-    # (3) do cross-validation and print out validation metrics
+    
+    X = vec.fit_transform(t for t in df['text'].values)
+    y = np.array(df.hostile)
+    clf = LogisticRegression(solver='lbfgs', multi_class='auto')
+    clf.fit(X, y)
+    coef = [-clf.coef_[0], clf.coef_[0]]
+    print(coef)
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    accuracies = []
+    for train, test in kf.split(X):
+        clf.fit(X[train], y[train])
+        pred = clf.predict(X[test])
+        accuracies.append(accuracy_score(y[test], pred))
+    print('accuracy over all cross-validation folds: %s' % str(accuracies))
+    print('mean=%.2f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
+    features = np.array(vec.get_feature_names())
+    preds = clf.predict(X)
+    for i in np.argsort(coef[0][X[0].nonzero()[1]])[::-1]:
+        idx = X[0].nonzero()[1][i]
+        print(features[idx])
+        print(coef[0][idx])
     accur=[]
     print('Cross Validation Results:')
     for train,test in KFold(n_splits=5, shuffle=True, random_state=42).split(X):
@@ -228,14 +242,16 @@ def train(directory):
 
     # (4) Finally, train on ALL data one final time and
     print('Overall Result:')
-    clf.fit(X,y)
     y_pred=clf.predict(X)
-    from sklearn.metrics import confusion_matrix
     mat=confusion_matrix(y,y_pred)
     print('Confusion Matrix:')
     print(mat)
     print("Precision: %f" % (mat[1,1]/(mat[1,1]+mat[0,1])))
     print("Recall: %f" % (mat[1,1]/(mat[1,1]+mat[1,0])))
+
+
+
+
     pickle.dump((clf, vec), open(clf_path, 'wb'))
 
 
