@@ -23,6 +23,7 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import re
+import pickle
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -52,9 +53,6 @@ def web(twitter_credentials, port):
 @click.argument('directory', type=click.Path(exists=True))
 def stats(directory):
     """
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     Read all files in this directory and its subdirectories and print statistics.
     """
     df = pd.read_csv(directory)
@@ -204,24 +202,46 @@ def stats(directory):
 
 @main.command('train')
 @click.argument('directory', type=click.Path(exists=True))
+
 def train(directory):
     """
     Train a classifier and save it.
     """
     print('reading from %s' % directory)
     # (1) Read the data...
-    #
     # (2) Create classifier and vectorizer.
     clf = LogisticRegression() # set best parameters 
     vec = CountVectorizer()    # set best parameters
-    
+    #List of all raw text = tweets
+    df = pd.read_csv(directory)
+    # tweets = df['text'].values    tweet for tweet in tweets
+    y=df['hostile'].values
+    # tweets=directory
+    X=vec.fit_transform(df.text)
+    accur=[]
+    print('Cross Validation Results:')
+    for train,test in KFold(n_splits=5, shuffle=True, random_state=42).split(X):
+       clf.fit(X[train],y[train])
+       pred=clf.predict(X[test])
+       accur.append(accuracy_score(y[test], pred))
+       print('mean=%f std=%f' % (np.mean(accur), np.std(accur)))
+    clf.fit(X,y)
+    pickle.dump((vec, clf), open('clf.pkl', 'wb'))
+    #  
+    # new_tweet = vec.transform([{'f1': 7, 'f2': -1, 'f3': 10}])
+    # print('new tweet feature vector:', new_tweet.todense())
+    # prediction = clf.predict(new_tweet)[0]
+    # print('prediction=', prediction)
+    # probas = clf.predict_proba(new_tweet)
+    # print('probas=', probas)
+    # print('predicted %s witih probability %.2f' % (prediction, probas.max()))
     # (3) do cross-validation and print out validation metrics
     # (classification_report)
 
     # (4) Finally, train on ALL data one final time and
     # train...
     # save the classifier
-    pickle.dump((clf, vec), open(clf_path, 'wb'))
+    #pickle.dump((clf, vec), open(clf_path, 'wb'))
 
 
 def make_features(df):
