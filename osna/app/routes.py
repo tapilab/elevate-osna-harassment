@@ -42,8 +42,8 @@ def index():
                 flag='[non-hostile] '
             p='[probability='+str(proba[i,y[i]])+'] '
             coef_text=''
-            for j in np.argsort(coef[0][X[0].nonzero()[1]])[::-1][:3]:#start stop step
-                idx = X[0].nonzero()[1][j]
+            for j in np.argsort(coef[0][X[i].nonzero()[1]])[::-1][:3]:#start stop step
+                idx = X[i].nonzero()[1][j]
                 coef_text=coef_text+'//    '+str(features[idx])+': '+str(coef[0][idx])+'  '
             ans.append(flag+p+tweets[i]+coef_text)
         #Tweets = a list of dict
