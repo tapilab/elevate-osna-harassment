@@ -213,10 +213,10 @@ def train(directory):
     
     X = vec.fit_transform(t for t in df['text'].values)
     y = np.array(df.hostile)
-    clf = LogisticRegression(solver='lbfgs', multi_class='auto')
     clf.fit(X, y)
+    # coef=sorted(clf.coef_)
     coef = [-clf.coef_[0], clf.coef_[0]]
-    print(coef)
+    print(coef[0])
 
     kf = KFold(n_splits=5, shuffle=True, random_state=42)
     accuracies = []
@@ -228,30 +228,23 @@ def train(directory):
     print('mean=%.2f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
     features = np.array(vec.get_feature_names())
     preds = clf.predict(X)
-    for i in np.argsort(coef[0][X[0].nonzero()[1]])[::-1]:
-        idx = X[0].nonzero()[1][i]
-        print(features[idx])
-        print(coef[0][idx])
-    accur=[]
-    print('Cross Validation Results:')
-    for train,test in KFold(n_splits=5, shuffle=True, random_state=42).split(X):
-        clf.fit(X[train],y[train])
-        pred=clf.predict(X[test])
-        accur.append(accuracy_score(y[test], pred))
-        print('mean=%f std=%f' % (np.mean(accur), np.std(accur)))
+    
+
 
     # (4) Finally, train on ALL data one final time and
     print('Overall Result:')
     y_pred=clf.predict(X)
-    mat=confusion_matrix(y,y_pred)
+    mat=classification_report(y,y_pred)
     print('Confusion Matrix:')
     print(mat)
-    print("Precision: %f" % (mat[1,1]/(mat[1,1]+mat[0,1])))
-    print("Recall: %f" % (mat[1,1]/(mat[1,1]+mat[1,0])))
-
-
-
-
+    sort_coef=[]
+    for i in range(0,len(coef[0])):
+        sort_coef.append([coef[0][i],features[i]])
+    myList = sorted(sort_coef, key=lambda x: x[0])
+    for i in range(0,15):
+        print(myList[i])
+    for i in range(len(coef[0])-16, len(coef[0])):
+        print(myList[i])
     pickle.dump((clf, vec), open(clf_path, 'wb'))
 
 
@@ -265,3 +258,6 @@ if __name__ == "__main__":
 
 # from . import credentials_path, config
 
+def getKeyValue(item):
+    keyValue ={item[0]}
+    return keyValue
