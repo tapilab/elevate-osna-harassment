@@ -12,8 +12,8 @@ import scipy
 import json
 import gzip
 import pickle
-from collections import Counter
 
+from collections import Counter
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -66,6 +66,10 @@ def train(directory):
     print("Precision: %f" % (mat[1,1]/(mat[1,1]+mat[0,1])))
     print("Recall: %f" % (mat[1,1]/(mat[1,1]+mat[1,0])))
     pickle.dump((clf, vec), open(clf_path, 'wb'))
+    coefficient = [-clf.coef_[0], clf.coef_[0]]
+    coef1 = sorted(coefficient[0],reverse = True)
+    coef2 = sorted(coefficient[1],reverse = True)
+    print("The top 15 coefficients for each class is hostile : %s and non-hostile : %s" % (coef1[0:15], coef2[0:15]))
 
 @main.command('web')
 @click.option('-t', '--twitter-credentials', required=False, type=click.Path(exists=True), show_default=True,
