@@ -5,8 +5,11 @@ import click
 import os  # operation system
 import re
 import glob
+import pickle
 import sys
-import numpy as np
+import numpy as np# -*- coding: utf-8 -*-
+
+"""Console script for elevate_osna."""
 import pandas as pd
 import scipy
 import json
@@ -17,59 +20,20 @@ from collections import Counter
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, classification_report
-
+from sklearn.metrics import confusion_matrix
+from numpy import hstack
 from . import credentials_path, clf_path
+from scipy import sparse
 # from . import credentials_path, config
 
 @click.group()
 def main(args=None):
     """Console script for osna."""
     return 0
-
-@main.command('train')
-@click.argument('directory', type=click.Path(exists=True))
-def train(directory):
-    """
-    Train a classifier and save it.
-    """
-    file = pd.read_csv(directory)
-    print('reading from %s' % directory)
-    # (1) Read the data...
-    # (2) Create classifier and vectorizer.
-    clf = LogisticRegression() # set best parameters 
-    vec = CountVectorizer()    # set best parameters
-    
-    X=vec.fit_transform(file.text)
-    y=np.array(file.hostile)
-    # (3) do cross-validation and print out validation metrics
-    # (classification_report)
-    accur=[]
-    print('Cross Validation Results:')
-    for train,test in KFold(n_splits=5, shuffle=True, random_state=42).split(X):
-        clf.fit(X[train],y[train])
-        pred=clf.predict(X[test])
-        accur.append(accuracy_score(y[test], pred))
-        print('mean=%f std=%f' % (np.mean(accur), np.std(accur)))
-
-    # (4) Finally, train on ALL data one final time and
-    # train...
-    # save the classifier
-    print('Overall Result:')
-    clf.fit(X,y)
-    y_pred=clf.predict(X)
-    from sklearn.metrics import confusion_matrix
-    mat=confusion_matrix(y,y_pred)
-    print('Confusion Matrix:')
-    print(mat)
-    print("Precision: %f" % (mat[1,1]/(mat[1,1]+mat[0,1])))
-    print("Recall: %f" % (mat[1,1]/(mat[1,1]+mat[1,0])))
-    pickle.dump((clf, vec), open(clf_path, 'wb'))
-    coefficient = [-clf.coef_[0], clf.coef_[0]]
-    coef1 = sorted(coefficient[0],reverse = True)
-    coef2 = sorted(coefficient[1],reverse = True)
-    print("The top 15 coefficients for each class is hostile : %s and non-hostile : %s" % (coef1[0:15], coef2[0:15]))
 
 @main.command('web')
 @click.option('-t', '--twitter-credentials', required=False, type=click.Path(exists=True), show_default=True,
@@ -122,14 +86,14 @@ def stats(directory):
 
     # use glob to iterate all files matching desired pattern (e.g., .json files).
     # recursively search subdirectories.
-    
+
     unique_user=set(df['sender'])
     n1=len(unique_user)
     print("The number of unique users is %d"%n1)
     unique_message=set(df['text'])
     n2=len(unique_message)
     print("The number of unique messages is %d"%n2)
-    
+
 
     df1=df[df['hostile']== 0]
     n3=len(set(df1['sender']))
@@ -186,7 +150,7 @@ def stats(directory):
         return counts
     counts = words(a)
     print("The 50 most common words are %s"%counts.most_common(50))
-    
+
     b = []
     for tweet in df1['text']:
         b=b+tweet_tokenizer(tweet)
@@ -202,9 +166,62 @@ def stats(directory):
     # recursively search subdirectories.
     """
 
+@main.command('train')
+@click.argument('directory', type=click.Path(exists=True))
+def train(directory):
+    """
+    Train a classifier and save it.
+    """
+    print('reading from %s' % directory)
+
+    # (1) Read the data...
+    df = pd.read_csv(directory)[['text', 'hostile']]
+    clf = LogisticRegression() # set best parameters
+    vec = CountVectorizer()    # set best parameters
+
+    X = vec.fit_transform(t for t in df['text'].values)
+    y = np.array(df.hostile)
+    coef=sorted(clf.coef_)
+    coef = [-clf.coef_[0], clf.coef_[0]]
+    print(coef[0])
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    accuracies = []
+    for train, test in kf.split(X):
+        clf.fit(X[train], y[train])
+        pred = clf.predict(X[test])
+        accuracies.append(accuracy_score(y[test], pred))
+    print('accuracy over all cross-validation folds: %s' % str(accuracies))
+    print('mean=%.2f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
+    features = np.array(vec.get_feature_names())
+    clf.fit(X, y)
+    preds = clf.predict(X)
+
+    # (4) Finally, train on ALL data one final time and
+    print('Overall Result:')
+    y_pred=clf.predict(X)
+    mat=classification_report(y,y_pred)
+    print('Confusion Matrix:')
+    print(mat)
+    sort_coef=[]
+    for i in range(0,len(coef[0])):
+        sort_coef.append([coef[0][i],features[i]])
+    myList = sorted(sort_coef, key=lambda x: x[0])
+    for i in range(0,15):
+        print(myList[i])
+    for i in range(len(coef[0])-16, len(coef[0])):
+        print(myList[i])
+    pickle.dump((clf, vec), open(clf_path, 'wb'))
+
 def make_features(df):
     ## Add your code to create features.
     pass
 
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover
+
+# from . import credentials_path, config
+
+def getKeyValue(item):
+    keyValue ={item[0]}
+    return keyValue

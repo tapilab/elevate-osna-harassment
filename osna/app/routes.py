@@ -13,19 +13,23 @@ import json
 import numpy as np
 # import tensorflow as tf
 from TwitterAPI import TwitterAPI
-
 #twapi = Twitter(credentials_path)
 
 clf, vec = pickle.load(open(clf_path, 'rb'))
-
 print('read clf %s' % str(clf))
 print('read vec %s' % str(vec))
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
+
 def index():
     form = MyForm()
     result = None
+    sort_coef=[]
+    coef = [-clf.coef_[0], clf.coef_[0]]
+    features = np.array(vec.get_feature_names())
+    for i in range(0,len(coef[0])):
+        sort_coef.append([coef[0][i],features[i]])
+    myList = sorted(sort_coef, key=lambda x: x[0])
     if form.validate_on_submit():
         input_field = form.input_field.data
         flash(input_field)
@@ -45,10 +49,12 @@ def index():
             if y[i]==0:
                 flag='[non-hostile] '
             p='[probability='+str(proba[i,y[i]])+'] '
-            ans.append(flag+p+tweets[i]+tweets[i])
-
+            coef_text=''
+            for j in np.argsort(coef[0][X[i].nonzero()[1]])[::-1][:3]:#start step stop
+                idx = X[i].nonzero()[1][j]
+                coef_text=coef_text+'//    '+str(features[idx])+': '+str(coef[0][idx])+'  '
+            ans.append(flag+p+tweets[i]+coef_text)
         #Tweets = a list of dict
         return render_template('myform.html', title='', form=form, tweets=ans)
-
         #return redirect('/index')
     return render_template('myform.html', title='', form=form)
