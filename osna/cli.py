@@ -30,6 +30,17 @@ from . import credentials_path, clf_path
 from scipy import sparse
 # from . import credentials_path, config
 
+from sklearn.model_selection import train_test_split
+from functools import cmp_to_key
+#from keras.datasets import mnist
+from keras.layers.core import Dense, Dropout, Activation, Flatten
+#from keras.models import Sequential
+#from keras.utils import np_utils
+from tensorflow import keras
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dropout
+
+
 @click.group()
 def main(args=None):
     """Console script for osna."""
@@ -166,6 +177,103 @@ def stats(directory):
     # recursively search subdirectories.
     """
 
+def train_with_tensorflow(path):
+
+	"""
+	Making keras dataset
+	"""
+	file=pd.read_csv(path);
+
+	tweets=file['text']
+	words=[]
+	raw_data=[]
+	s=set()
+	for tweet in tweets:
+		raw_data.append(tweet.split())
+		for word in tweet.split():
+			words.append(word)
+			s.add(word)
+
+	dict={}
+	for word in s:
+		dict[word]=words.count(word)
+
+	def my_cmp(x,y):
+		if dict[x]<dict[y]:
+			return -1
+		if dict[x]>dict[y]:
+			return 1
+		if x<y:
+			return 1
+		else:
+			return -1
+		return 0
+
+	cnt=0
+	s=sorted(s,key=cmp_to_key(my_cmp),reverse=True)
+	for word in s:
+		cnt+=1
+		dict[word]=cnt
+
+	keras_data=[]
+	for one_sen in raw_data:
+		one_data=[]
+		for word in one_sen:
+			one_data.append(dict[word])
+		keras_data.append(one_data)
+
+	labels=[]
+	for each in file['hostile']:
+		if each=='1':
+			labels.append(1)
+		else:
+			labels.append(0)
+
+	train_data,test_data=keras_data[:4000],keras_data[4000:]
+	train_labels,test_labels=labels[:4000],labels[4000:]
+
+	"""
+	Preprocessing keras data
+	"""
+	train_data = keras.preprocessing.sequence.pad_sequences(train_data,value=0,padding='post',maxlen=256)
+	test_data = keras.preprocessing.sequence.pad_sequences(test_data,value=0,padding='post',maxlen=256)
+
+	"""
+	Building models
+	"""
+
+	vocab_size = len(s)
+	dropout_rate = .2
+	model = keras.Sequential()
+	model.add(keras.layers.Embedding(vocab_size+1, 16))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(keras.layers.GlobalAveragePooling1D())
+	model.add(keras.layers.Dense(16, activation='relu'))
+	model.add(Dropout(rate=dropout_rate))
+	model.add(keras.layers.Dense(1, activation='sigmoid'))
+
+	"""
+	Adding adam optimizer
+	"""
+	adam = keras.optimizers.Adam(lr=0.001)
+	model.compile(optimizer=adam,loss='binary_crossentropy',metrics=['accuracy'])
+
+	"""
+	Cross validation
+	"""
+	x_val = train_data[:3500]
+	partial_x_train = train_data[3500:]
+	y_val = train_labels[:3500]
+	partial_y_train = train_labels[3500:]
+
+	"""
+	Training and results
+	"""
+	history = model.fit(partial_x_train, partial_y_train,epochs=40,batch_size=512,validation_data=(x_val, y_val),verbose=1)
+	results = model.evaluate(test_data, test_labels)
+	print("Tensorflow training results:")
+	print("Loss: %f Accurancy: %f" % (results[0],results[1]))
+	
 @main.command('train')
 @click.argument('directory', type=click.Path(exists=True))
 def train(directory):
@@ -181,10 +289,12 @@ def train(directory):
 
     X = vec.fit_transform(t for t in df['text'].values)
     y = np.array(df.hostile)
+    """
     coef=sorted(clf.coef_)
     coef = [-clf.coef_[0], clf.coef_[0]]
     print(coef[0])
-
+    """
+	
     kf = KFold(n_splits=5, shuffle=True, random_state=42)
     accuracies = []
     for train, test in kf.split(X):
@@ -203,6 +313,7 @@ def train(directory):
     mat=classification_report(y,y_pred)
     print('Confusion Matrix:')
     print(mat)
+    coef=clf.coef_
     sort_coef=[]
     for i in range(0,len(coef[0])):
         sort_coef.append([coef[0][i],features[i]])
@@ -212,6 +323,8 @@ def train(directory):
     for i in range(len(coef[0])-16, len(coef[0])):
         print(myList[i])
     pickle.dump((clf, vec), open(clf_path, 'wb'))
+    train_with_tensorflow(directory)
+	
 
 def make_features(df):
     ## Add your code to create features.
