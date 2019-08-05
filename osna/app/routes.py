@@ -48,12 +48,18 @@ def index():
             flag='[hostile] '
             if y[i]==0:
                 flag='[non-hostile] '
-            p='[probability='+str(proba[i,y[i]])+'] '
+            p='[probability='+'%.2f'%(proba[i,y[i]])+'] '
             coef_text=''
+            a = [0]
             for j in np.argsort(coef[0][X[i].nonzero()[1]])[::-1][:3]:#start step stop
                 idx = X[i].nonzero()[1][j]
-                coef_text=coef_text+'//    '+str(features[idx])+': '+str(coef[0][idx])+'  '
-            ans.append(flag+p+tweets[i]+coef_text)
+                a[0] += 1
+                coef_text=coef_text+'//    '+'%d'%a[0]+'.'+str(features[idx])+': '+'%.2f'%(coef[0][idx])+'  '
+            # ans.append(flag+p+tweets[i]+coef_text)
+            ans.append(flag + p)
+            ans.append(tweets[i])
+            ans.append(coef_text)
+            ans.append("\n")
         #Tweets = a list of dict
         return render_template('myform.html', title='', form=form, tweets=ans)
         #return redirect('/index')
