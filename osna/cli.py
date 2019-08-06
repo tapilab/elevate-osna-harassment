@@ -20,7 +20,7 @@ from collections import Counter
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
-# from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, classification_report
@@ -218,7 +218,7 @@ def train_with_tensorflow(path):
 	s=sorted(s,key=cmp_to_key(my_cmp), reverse=True)
 	print('%d unique words' % len(s))
 	wordindex = {}
-	for word in s[:10000]: # 5000 most frequent words
+	for word in s[:11000]: # x most frequent words
 		cnt+=1
 		wordindex[word]=cnt
 
@@ -258,7 +258,7 @@ def train_with_tensorflow(path):
 	# model.add(Dropout(rate=dropout_rate))
 	# model.add(keras.layers.Dense(16, activation='relu'))
 	# model.add(keras.layers.Dense(1, activation='sigmoid'))
-	model.add(keras.layers.Embedding(vocab_size+1, 64))
+	model.add(keras.layers.Embedding(vocab_size+1, 128))
 	model.add(Dropout(rate=dropout_rate))
 	model.add(keras.layers.GlobalAveragePooling1D())
 	model.add(keras.layers.Dense(64, activation='relu'))
@@ -300,8 +300,9 @@ def train(directory):
 
 	# (1) Read the data...
 	df = pd.read_csv(directory)[['text', 'hostile']]
-	#clf = LogisticRegression() # set best parameters
-	clf = RandomForestClassifier(n_estimators=200, min_samples_leaf=3)
+	# clf = LogisticRegression() # set best parameters
+	clf = MLPClassifier(alpha=0.0001)
+	# clf = RandomForestClassifier(n_estimators=200, min_samples_leaf=3)
 	vec = CountVectorizer(min_df=2, stop_words='english')    # set best parameters
 
 	X = vec.fit_transform(t for t in df['text'].values)
@@ -324,7 +325,7 @@ def train(directory):
 		all_truths.extend(y[test])
 		accuracies.append(accuracy_score(y[test], pred))
 	print('accuracy over all cross-validation folds: %s' % str(accuracies))
-	print('mean=%.2f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
+	print('mean=%.4f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
 	features = np.array(vec.get_feature_names())
 	clf.fit(X, y)
 	#preds = clf.predict(X)
