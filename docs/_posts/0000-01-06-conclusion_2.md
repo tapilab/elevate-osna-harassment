@@ -3,11 +3,10 @@ layout: slide
 title: "Conclusion"
 ---
 
+The most predictive features of harassment were:  
 
-| | F1 | Precision | Recall |
-|----------|----------|---------|--------|
-| RandomForest | 0.67  | 0.72|0.63|
-| MLPClassifier  | 0.66  |0.66|0.65|
-| LogisticRegression |0.72|0.72|0.72|
+Feature 1 ‘tw*t’: 3.153039 example: '@69traf @MarcIlesMy bet is a Thursday morning signoff. Just so Ken can let everyone know that he can get away with being a tw*t.’   
 
-And with epochs=60 and batch_size=600, we have the best accuracy 0.692 using tensorflow.
+Feature 2 ‘cu*t’: 3.050812 example: '@AgentFraudyRacist rent boy cu*t’  
+
+Feature 3 ‘ret*rd' 2.589306 example: '@PuncakeSSBU@NintendoAmericaWhy would you want to buff his smash attacks you goddamn Ret*rd'
