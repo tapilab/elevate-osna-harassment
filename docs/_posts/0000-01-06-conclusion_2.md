@@ -3,5 +3,4 @@ layout: slide
 title: "Conclusion"
 ---
 
-
-![image](https://github.com/tapilab/elevate-osna-harassment/blob/master/docs/_posts/image2.png)  
+<img src="{{ site.baseurl }}/assets/img/image2.png">
