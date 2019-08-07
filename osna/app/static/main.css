@@ -2,17 +2,20 @@ body {
   margin: 50px;
   padding: 50px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #444;
+  color: rgb(10, 10, 10);
 }
 /*
  * Formatting the header area
  */
 header {
-  background-color: #DFB887;
+  background-color: rgb(135, 203, 223);
+  
+  color: #444; 
   height: 35px;
   width: 100%;
   opacity: .9;
   margin-bottom: 10px;
+  
 }
 
 label {
