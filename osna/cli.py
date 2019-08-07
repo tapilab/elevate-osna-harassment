@@ -261,7 +261,7 @@ def train_with_tensorflow(path):
 	model.add(keras.layers.Embedding(vocab_size+1, 128))
 	model.add(Dropout(rate=dropout_rate))
 	model.add(keras.layers.GlobalAveragePooling1D())
-	model.add(keras.layers.Dense(64, activation='relu'))
+	model.add(keras.layers.Dense(36, activation='relu'))
 	model.add(Dropout(rate=dropout_rate))
 	model.add(keras.layers.Dense(1, activation='sigmoid'))
 
@@ -300,10 +300,16 @@ def train(directory):
 
 	# (1) Read the data...
 	df = pd.read_csv(directory)[['text', 'hostile']]
+<<<<<<< HEAD
+	clf = MLPClassifier(hidden_layer_sizes=(10, )) # set best parameters
+	# clf = RandomForestClassifier(n_estimators = 100,min_samples_leaf = 5)
+	vec = CountVectorizer()    # set best parameters
+=======
 	# clf = LogisticRegression() # set best parameters
 	clf = MLPClassifier(alpha=0.0001)
 	# clf = RandomForestClassifier(n_estimators=200, min_samples_leaf=3)
 	vec = CountVectorizer(min_df=2, stop_words='english')    # set best parameters
+>>>>>>> f8cc923a40351be9446ee60dcae63a1f0659f90d
 
 	X = vec.fit_transform(t for t in df['text'].values)
 	print('x shape', X.shape)
@@ -325,7 +331,11 @@ def train(directory):
 		all_truths.extend(y[test])
 		accuracies.append(accuracy_score(y[test], pred))
 	print('accuracy over all cross-validation folds: %s' % str(accuracies))
+<<<<<<< HEAD
+	print('mean=%.5f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
+=======
 	print('mean=%.4f std=%.2f' % (np.mean(accuracies), np.std(accuracies)))
+>>>>>>> f8cc923a40351be9446ee60dcae63a1f0659f90d
 	features = np.array(vec.get_feature_names())
 	clf.fit(X, y)
 	#preds = clf.predict(X)
