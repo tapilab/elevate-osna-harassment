@@ -3,6 +3,10 @@ layout: slide
 title: "Conclusion"
 ---
 
+| | F1 | Precision | Recall |
+|----------|----------|---------|--------|
+| RandomForest | 0.67  | 0.72|0.63|
+| MLPClassifier  | 0.66  |0.66|0.65|
+| LogisticRegression |0.72|0.72|0.72|
 
-<img src="{{ site.baseurl }}/assets/img/image1.png">
-  And with tensorflow method we have the best accuracy 0.692 when epochs=60 and batch_size=600  
+And with epochs=60 and batch_size=600, we have the best accuracy 0.692 using tensorflow.
