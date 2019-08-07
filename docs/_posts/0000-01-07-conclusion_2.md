@@ -1,3 +1,7 @@
+---
+layout: slide
+title: "Conclusion"
+---
 
 an image:
 
