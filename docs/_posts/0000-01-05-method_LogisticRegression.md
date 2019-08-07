@@ -5,6 +5,10 @@ title: "LogisticRegression"
 
 Parameters changed: penalty, C
 
+'penalty': Used to specify the norm used in the penalization.
+
+'C':Inverse of regularization strength; must be a positive float. Like in support vector machines, smaller values specify stronger regularization.
+
 
 |  penalty | Accuracy |
 |----------|----------|
